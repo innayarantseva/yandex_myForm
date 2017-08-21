@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>My Form</title>
+        
+        <link rel="stylesheet" href="css/styles.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400&amp;subset=cyrillic-ext" rel="stylesheet">
+    </head>
+    <body>
+        <form id="myForm" action="" method="">
+            <p>
+                <label for="fio">ФИО:</label>
+                <input type="text" id="fio" name="fio" placeholder="Иванов Иван Иванович">
+            </p>
+            <p>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="ivanov@ya.ru">
+            </p>
+            <p>
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone" placeholder="+7 (777) 777 77 77">
+            </p>
+            
+            <button type="submit" id="submitButton">Отправить</button>            
+        </form>
+        
+        <div id="resultContainer"></div>
+        
+        <script src="index.js"></script>
+    </body>
+</html>
