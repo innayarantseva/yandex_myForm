@@ -9,9 +9,60 @@ $(document).ready(function() {
 
         validate() {
             let isValid = false;
+            let errorFields = [];
+            
+            const domains = [
+                'ya.ru',
+                'yandex.ru',
+                'yandex.ua',
+                'yandex.by',
+                'yandex.kz',
+                'yandex.com'
+            ];
+            
+            let fields = [
+                {
+                    value: $('#fio').val(),
+                    rule: function(val) {
+                        if (!/([А-Яа-яA-Za-z]+ ){2}[А-Яа-яA-Za-z]+/.test(val)) {
+                            errorFields.push('fio');
+                        }
+                    }
+                },
+                {
+                    value: $('#email').val(),
+                    rule: function(val) {
+                        
+                        let inputDomain = $('#email').val().split('@')[1];
+                        
+                        if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(val)) {
+                            errorFields.push('email');
+                        } else {
+                            for (let value of domains) {
+                                if (value === inputDomain) {
+                                    break;
+                                }
+                            } 
+                        }
+                    }
+                },
+                {
+                    value: $('#phone').val(),
+                    rule: function(val) {
+                        if (val === '') {
+                            errorFields.push('phone')
+                        }
+                    }
+                }
+            ];
+            
+            for (let field of fields) {
+                field.rule(field.value);
+            }
+            
             return {
                 isValid: isValid,
-                errorFields: []
+                errorFields: errorFields
             };
         }
 
@@ -64,7 +115,7 @@ $(document).ready(function() {
             email: $('#email').val(),
             phone: $('#phone').val()
         })
-        console.log(form.getData());
+        console.log(form.getData(), form.validate().errorFields);
         form.submit();
     }); 
 });
