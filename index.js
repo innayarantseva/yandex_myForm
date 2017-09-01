@@ -8,58 +8,79 @@ $(document).ready(function() {
         }
 
         validate() {
-            let isValid = false;
+            let isValid = true;
             let errorFields = [];
             
+            //check if we have an appropriate domain name 
             const domains = [
+                'yandex.ua',
                 'ya.ru',
                 'yandex.ru',
-                'yandex.ua',
                 'yandex.by',
                 'yandex.kz',
                 'yandex.com'
             ];
             
+            function isDomainValid(domain) {
+                if (!domains.includes(domain)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }; 
+            
+            //array consists of 'field' objects; each 'field' has a value and a validation rule
             let fields = [
                 {
                     value: $('#fio').val(),
                     rule: function(val) {
                         if (!/([А-Яа-яA-Za-z]+ ){2}[А-Яа-яA-Za-z]+/.test(val)) {
                             errorFields.push('fio');
+                            isValid = false;
+                            $('#fio').addClass('error');
+                        } else {
+                            $('#fio').removeClass('error');
                         }
                     }
                 },
                 {
                     value: $('#email').val(),
                     rule: function(val) {
-                        
                         let inputDomain = $('#email').val().split('@')[1];
+                        let isEmailValid = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(val);
                         
-                        if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(val)) {
-                            errorFields.push('email');
+                        if (isEmailValid && isDomainValid(inputDomain)) {
+                            $('#email').removeClass('error');
                         } else {
-                            for (let value of domains) {
-                                if (value === inputDomain) {
-                                    break;
-                                }
-                            } 
-                        }
+                            errorFields.push('email');
+                            isValid = false;
+                            $('#email').addClass('error');
+                        };
                     }
                 },
                 {
                     value: $('#phone').val(),
                     rule: function(val) {
-                        if (val === '') {
-                            errorFields.push('phone')
+                        let isPhoneValid = /^\+7\(\d{3}\)\d{3}\-\d{2}\-\d{2}$/.test(val);
+                        let isSumValid = val.replace(/\D/g, '').split('').map((el) => Number(el)).reduce((a, b) => a + b, 0) <= 30;
+                        console.log(isSumValid);
+                        if (isPhoneValid && isSumValid) {
+                            $('#phone').removeClass('error');
+                        } else {
+                            errorFields.push('phone');
+                            isValid = false;    
+                            $('#phone').addClass('error');
                         }
                     }
                 }
             ];
             
+            //check if every 'field' value is valid according to its validation rule
             for (let field of fields) {
                 field.rule(field.value);
             }
             
+            //return an object with validation result
             return {
                 isValid: isValid,
                 errorFields: errorFields
@@ -81,28 +102,45 @@ $(document).ready(function() {
         }   
     
         submit() {
-            let ajaxUrl = '';
             this.validate();
             
-            if (this.validate().isValid) {
-                ajaxUrl = 'json/success.json'
-            } else {
-                ajaxUrl = 'json/error.json'
+            let resultContainer = $('#resultContainer');
+            let formUrl = $('#myForm').attr('action');
+            let isFormValid = this.validate().isValid;
+                        
+            function ajaxQuery() {
+                if (isFormValid) {
+                    $.ajax({
+                        type: 'GET',
+                        url: formUrl,
+                        dataType: 'json',
+                        success: function(result) {
+                            let status = result.status;
+                            resultContainer.addClass(status);
+
+                            switch (status) {
+                                case 'success':
+                                    resultContainer.html('Success');
+                                    $('#submitButton').attr('disabled', 'disabled');
+                                    break;
+                                case 'progress':
+                                    resultContainer.html('Progress');
+                                    //не смогла в timeout
+//                                    setTimeout(ajaxQuery(), result.timeout);  
+                                    console.log(result.timeout);
+                                    break;
+                                case 'error':
+                                    resultContainer.html('Error: ' + result.reason);
+                                    break;
+
+                            }
+                            console.log(result.status);
+                        }
+                    });
+                }
             };
             
-            let resultContainer = $('#resultContainer');
-            $.ajax({
-                type: 'GET',
-                url: 'json/progress.json',
-                dataType: 'json',
-                success: function(result) {
-                    resultContainer.html(result);
-                    console.log(result);
-                },
-                error: function() {
-                    console.log('query failure!')
-                }
-            });
+            ajaxQuery();
         }
     };
     
@@ -110,12 +148,14 @@ $(document).ready(function() {
         e.preventDefault();
         
         const form = new MyForm();
+        
         form.setData({
             name: $('#fio').val(),
             email: $('#email').val(),
             phone: $('#phone').val()
-        })
-        console.log(form.getData(), form.validate().errorFields);
+            
+        });
+        
         form.submit();
     }); 
 });

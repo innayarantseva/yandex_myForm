@@ -11,7 +11,7 @@
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400&amp;subset=cyrillic-ext" rel="stylesheet">
     </head>
     <body>
-        <form id="myForm">
+        <form id="myForm" action="json/success.json">
             <p>
                 <label for="fio">ФИО:</label>
                 <input type="text" id="fio" name="fio" placeholder="Иванов Иван Иванович">
@@ -25,8 +25,7 @@
                 <input type="tel" id="phone" name="phone" placeholder="+7 (777) 777 77 77">
             </p>
             
-            <button id="submitButton">Отправить</button>  
-            <div id="click">Click!</div>
+            <button id="submitButton">Отправить</button>
         </form>
         
         <div id="resultContainer"></div>
